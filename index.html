@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>👑 RICHMAN LUCKY DRAW 👑</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;}
+
+body{
+    margin:0;
+    min-height:100dvh;
+    overflow-x:hidden;
+    overflow-y:auto;
+    font-family:'Cinzel',system-ui,-apple-system,sans-serif;
+    color:#fff;
+    background:#000;
+}
+
+.stage-bg{
+    position:fixed;
+    inset:0;
+    background:
+        radial-gradient(circle at 50% 20%, rgba(255,215,0,0.25), transparent 40%),
+        radial-gradient(circle at 20% 80%, rgba(255,140,0,0.15), transparent 45%),
+        radial-gradient(circle at 80% 80%, rgba(255,215,0,0.12), transparent 50%),
+        linear-gradient(180deg,#000,#0b0b0b,#000);
+}
+
+.stage-bg::before{
+    content:"";
+    position:absolute;
+    inset:-50%;
+    background:linear-gradient(120deg,
+        transparent 0%,
+        rgba(255,215,0,0.12) 45%,
+        rgba(255,255,255,0.18) 50%,
+        rgba(255,215,0,0.12) 55%,
+        transparent 100%
+    );
+    transform:rotate(15deg);
+    animation:shine 6s linear infinite;
+}
+
+@keyframes shine{
+    0%{transform:translateX(-40%) rotate(15deg);}
+    100%{transform:translateX(40%) rotate(15deg);}
+}
+
+canvas{
+    position:fixed;
+    inset:0;
+    z-index:0;
+}
+
+.container{
+    position:relative;
+    z-index:2;
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:clamp(12px,3vw,32px);
+    width:100%;
+}
+
+.title{
+    font-size:clamp(32px,6vw,72px);
+    font-weight:900;
+    color:#ffd700;
+    text-shadow:
+        0 0 10px #ffcc00,
+        0 0 25px #ffd700,
+        0 0 50px rgba(255,215,0,0.8);
+    margin-bottom:10px;
+    letter-spacing:4px;
+    text-transform:uppercase;
+}
+
+.sub{
+    font-family:'Cinzel',serif;
+    font-size:clamp(16px,2.2vw,22px);
+    opacity:0.9;
+    margin-bottom:20px;
+    font-weight:600;
+}
+
+#screen{
+    width:min(1100px,96vw);
+    background:rgba(0,0,0,0.55);
+    border:2px solid rgba(255,215,0,0.4);
+    border-radius:clamp(16px,2vw,28px);
+    padding:clamp(16px,3vw,36px);
+}
+
+.controls{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+}
+
+input{
+    padding:clamp(10px,1.5vw,16px);
+    border-radius:12px;
+    border:1px solid #ffd700;
+    background:#111;
+    color:#fff;
+    width:min(280px,100%);
+    min-width:120px;
+    text-align:center;
+    font-size:clamp(16px,2vw,24px);
+    font-weight:700;
+    flex:1 1 220px;
+}
+
+#winner{
+    font-size:clamp(30px,7vw,88px);
+    font-weight:900;
+    color:#fff;
+    min-height:min(24vh,220px);
+    display:block;
+    text-align:center;
+    white-space:pre-line;
+    line-height:1.25;
+    overflow:visible;
+    word-break:break-word;
+    padding:10px;
+}
+
+#winner.scroll{
+    max-height:calc(1.3em * 6);
+    overflow-y:auto;
+    scroll-behavior:smooth;
+    width:100%;
+}
+
+button{
+    margin-top:15px;
+    padding:clamp(12px,2vw,18px) clamp(20px,4vw,42px);
+    font-size:clamp(16px,2vw,24px);
+    font-weight:900;
+    border:none;
+    border-radius:16px;
+    cursor:pointer;
+    background:linear-gradient(45deg,#ffd700,#ff9900,#ffcc00);
+    color:#000;
+    box-shadow:0 0 25px rgba(255,215,0,0.4);
+    transition:0.2s;
+}
+
+button:disabled{
+    opacity:0.5;
+    cursor:not-allowed;
+    transform:scale(0.98);
+}
+
+#history{
+    margin-top:20px;
+    width:min(1100px,96vw);
+    max-height:28vh;
+    overflow-y:auto;
+    background:rgba(0,0,0,0.4);
+    border-radius:18px;
+    padding:clamp(10px,2vw,20px);
+    font-size:clamp(14px,1.6vw,18px);
+    text-align:left;
+}
+
+.history-row{
+    padding:10px;
+    border-bottom:1px solid rgba(255,215,0,0.15);
+    font-size:18px;
+    line-height:1.4;
+    font-weight:600;
+}
+
+@media(max-width:900px){
+    .controls{
+        flex-direction:column;
+        align-items:stretch;
+        width:100%;
+    }
+
+    #screen{
+        width:100%;
+    }
+
+    button{
+        width:100%;
+    }
+
+    input{
+        width:100%;
+    }
+}
+
+@media(max-width:600px){
+    .title{
+        line-height:1.1;
+    }
+
+    #winner{
+        min-height:180px;
+    }
+
+    .history-row{
+        font-size:15px;
+    }
+}
+    input{width:100%;}
+}
+.vip{
+    text-shadow:
+        0 0 25px #ffd700,
+        0 0 60px #ffcc00,
+        0 0 120px #fff4a3;
+    animation:vipPulse 1s infinite;
+    transform:scale(1.08);
+    letter-spacing:4px;
+    position:relative;
+    z-index:5;
+}
+
+.vip::before{
+    content:"👑 VIP WINNER 👑";
+    display:block;
+    font-size:clamp(18px,2vw,32px);
+    color:#ffd700;
+    margin-bottom:15px;
+    text-shadow:0 0 15px gold;
+    animation:vipBanner 1.2s infinite;
+}
+
+@keyframes vipPulse{
+    0%{
+        filter:brightness(1);
+        transform:scale(1.05);
+    }
+    50%{
+        filter:brightness(1.6);
+        transform:scale(1.12);
+    }
+    100%{
+        filter:brightness(1);
+        transform:scale(1.05);
+    }
+}
+
+@keyframes vipBanner{
+    0%{opacity:0.7; transform:translateY(0px);}
+    50%{opacity:1; transform:translateY(-4px);}
+    100%{opacity:0.7; transform:translateY(0px);}
+}
+    50%{filter:brightness(1.4);}
+    100%{filter:brightness(1);}
+}
+</style>
+</head>
+
+<body>
+
+<div class="stage-bg"></div>
+<canvas id="bg"></canvas>
+
+<div class="container">
+
+<div class="title">👑 RICHMAN LUCKY DRAW 👑</div>
+<div class="sub">เพราะพวกเรา... #รวยไม่ไหวแล้ว</div>
+
+<div id="screen">
+
+<div class="controls">
+    <input id="sessionName" placeholder="ชื่อรางวัล" />
+    <input id="count" type="number" value="3" min="1" max="110" />
+</div>
+
+<div id="winner">READY TO GET RICH</div>
+
+<button id="drawBtn" onclick="draw()">💰 START DRAW</button>
+
+</div>
+
+<div style="display:flex;justify-content:space-between;align-items:center;width:min(900px,95vw);margin-top:20px;">
+<h3 style="margin:0;">💰 BILLIONAIRE HISTORY</h3>
+<button onclick="resetAll()" style="padding:10px 18px;font-size:14px;border-radius:12px;border:none;cursor:pointer;background:linear-gradient(45deg,#ff0033,#ff6600,#ff0000);color:#fff;">🗑️ RESET ALL</button>
+</div>
+<div id="history"></div>
+
+</div>
+
+<script>
+
+// ===================== GOLD PARTICLE EFFECT =====================
+const canvas = document.getElementById("bg");
+const ctx = canvas.getContext("2d");
+
+function resize(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener("resize", resize);
+
+const goldCoins = [];
+
+function spawnCoin(){
+    return {
+        x: Math.random()*canvas.width,
+        y: -20,
+        size: 10 + Math.random()*10,
+        speed: 1 + Math.random()*3,
+        drift: (Math.random()-0.5)*1.5
+    };
+}
+
+for(let i=0;i<80;i++) goldCoins.push(spawnCoin());
+
+function animateGold(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    for(let c of goldCoins){
+        c.y += c.speed;
+        c.x += c.drift;
+
+        if(c.y > canvas.height){
+            c.y = -20;
+            c.x = Math.random()*canvas.width;
+        }
+
+        ctx.beginPath();
+        ctx.fillStyle = "rgba(255,215,0,0.9)";
+        ctx.shadowColor = "gold";
+        ctx.shadowBlur = 10;
+        ctx.arc(c.x,c.y,c.size,0,Math.PI*2);
+        ctx.fill();
+    }
+
+    requestAnimationFrame(animateGold);
+}
+animateGold();
+
+// ===================== EXISTING LOGIC =====================
+let masterPool=[];
+let available=[];
+let fullHistory=[];
+
+const historyEl=document.getElementById('history');
+const winner=document.getElementById('winner');
+const drawBtn=document.getElementById('drawBtn');
+const NL = String.fromCharCode(10);
+
+function initPool(){
+    masterPool=[];
+    for(let i=999001;i<=999110;i++) masterPool.push(i);
+    available=[...masterPool];
+}
+initPool();
+
+const AudioCtx=window.AudioContext||window.webkitAudioContext;
+let audioCtx;
+
+function ensureAudio(){
+    if(!audioCtx) audioCtx=new AudioCtx();
+    if(audioCtx.state==='suspended') audioCtx.resume();
+}
+
+function playSound(freq,type,duration,volume=0.5){
+    if(!audioCtx) return;
+
+    const osc=audioCtx.createOscillator();
+    const gain=audioCtx.createGain();
+
+    osc.type=type;
+    osc.frequency.value=freq;
+
+    gain.gain.setValueAtTime(volume,audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+duration);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime+duration);
+}
+
+// ===== BALL COLLISION SOUND =====
+function playBallHit(){
+    if(!audioCtx) return;
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(180 + Math.random()*120, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.08);
+
+    gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.08);
+}
+
+// ===== CROWD APPLAUSE EFFECT =====
+function playCrowd(){
+    if(!audioCtx) return;
+
+    const bufferSize = 2 * audioCtx.sampleRate;
+    const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+
+    for(let i=0;i<bufferSize;i++){
+        output[i] = (Math.random()*2-1) * 0.6;
+    }
+
+    const whiteNoise = audioCtx.createBufferSource();
+    whiteNoise.buffer = noiseBuffer;
+
+    const gainNode = audioCtx.createGain();
+    gainNode.gain.setValueAtTime(0.01,audioCtx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.9,audioCtx.currentTime+0.2);
+    gainNode.gain.linearRampToValueAtTime(0.001,audioCtx.currentTime+2.5);
+
+    const bandpass = audioCtx.createBiquadFilter();
+    bandpass.type = 'bandpass';
+    bandpass.frequency.value = 1000;
+
+    whiteNoise.connect(bandpass);
+    bandpass.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    whiteNoise.start();
+    whiteNoise.stop(audioCtx.currentTime+2.5);
+}
+
+function pickFromPool(temp){
+    const pool=temp||available;
+    if(pool.length===0) return null;
+    const idx=Math.floor(Math.random()*pool.length);
+    return pool.splice(idx,1)[0];
+}
+
+function draw(){
+    if(drawBtn.disabled) return;
+
+    ensureAudio();
+
+    const count=Math.min(parseInt(document.getElementById('count').value)||1, available.length);
+    const session=document.getElementById('sessionName').value||'UNKNOWN SESSION';
+
+    if(available.length===0){
+        alert('ไม่มีเลขเหลือแล้ว กรุณากด RESET ALL');
+        return;
+    }
+
+    drawBtn.disabled=true;
+    winner.classList.remove('scroll');
+    winner.classList.remove('vip');
+
+    const vip = (count === 1);
+    if(vip){
+        winner.classList.add('vip');
+    }
+
+    const speed = vip ? 320 : 80;
+
+    // VIP DRAW ใช้เวลานานกว่าเพื่อเพิ่มความลุ้น
+    const drawDuration = vip ? 5000 : 2000;
+
+    const interval=setInterval(()=>{
+        const preview=[];
+        const temp=[...available];
+
+        for(let i=0;i<count;i++){
+            const v=pickFromPool(temp);
+            if(v!==null) preview.push(v);
+        }
+
+        winner.textContent=preview.join(NL);
+
+        // VIP suspense effect
+        if(vip){
+            winner.style.transform = `scale(${1 + Math.random()*0.03})`;
+            winner.style.filter = `brightness(${1 + Math.random()*0.4})`;
+        }
+
+        // BALL MIXING SOUND
+        playBallHit();
+    },speed);
+
+    setTimeout(()=>{
+        clearInterval(interval);
+
+        const result=[];
+        for(let i=0;i<count;i++){
+            const v=pickFromPool(available);
+            if(v!==null) result.push(v);
+        }
+
+        fullHistory.unshift({session,numbers:result,time:new Date().toLocaleString()});
+
+        historyEl.innerHTML=fullHistory.map(h=>
+            `<div class="history-row">💰 ${h.session} | 👑 ${h.numbers.join(', ')} | 🕒 ${h.time}</div>`
+        ).join('');
+
+        winner.textContent=result.join(NL);
+
+        // ===== AUTO SCROLL =====
+        if(result.length > 6){
+            winner.classList.add('scroll');
+            winner.scrollTop = 0;
+        }else{
+            winner.classList.remove('scroll');
+        }
+
+        // ===== VIP EXTRA EFFECT =====
+        if(vip){
+            playSound(880,'sine',0.5,0.8);
+            setTimeout(()=>playSound(1320,'sine',0.6,0.8),150);
+            setTimeout(()=>playSound(1760,'sine',0.7,0.9),300);
+            setTimeout(()=>playSound(2200,'triangle',1,1),500);
+
+            // HUGE CROWD APPLAUSE
+            setTimeout(()=>playCrowd(),250);
+
+            // FLASH EFFECT
+            document.body.animate([
+                {filter:'brightness(1)'},
+                {filter:'brightness(2)'},
+                {filter:'brightness(1)'}
+            ],{
+                duration:800,
+                iterations:1
+            });
+
+            // SCREEN SHAKE
+            document.getElementById('screen').animate([
+                {transform:'translateX(0px)'},
+                {transform:'translateX(-8px)'},
+                {transform:'translateX(8px)'},
+                {transform:'translateX(0px)'}
+            ],{
+                duration:400,
+                iterations:2
+            });
+        }
+
+        drawBtn.disabled=false;
+
+    },drawDuration);
+}
+
+function resetAll(){
+    initPool();
+    fullHistory=[];
+    historyEl.innerHTML='';
+    winner.textContent='READY TO GET RICH';
+    drawBtn.disabled=false;
+}
+
+</script>
+
+</body>
+</html>
